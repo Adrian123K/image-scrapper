@@ -51,19 +51,6 @@
    <property name="title">
     <string>검색 엔진</string>
    </property>
-   <widget class="QRadioButton" name="naver">
-    <property name="geometry">
-     <rect>
-      <x>10</x>
-      <y>40</y>
-      <width>90</width>
-      <height>16</height>
-     </rect>
-    </property>
-    <property name="text">
-     <string>Naver</string>
-    </property>
-   </widget>
    <widget class="QRadioButton" name="google">
     <property name="geometry">
      <rect>
@@ -75,6 +62,19 @@
     </property>
     <property name="text">
      <string>Google</string>
+    </property>
+   </widget>
+   <widget class="QRadioButton" name="naver">
+    <property name="geometry">
+     <rect>
+      <x>10</x>
+      <y>40</y>
+      <width>90</width>
+      <height>16</height>
+     </rect>
+    </property>
+    <property name="text">
+     <string>Naver</string>
     </property>
    </widget>
    <widget class="QRadioButton" name="bing">
@@ -103,51 +103,12 @@
    <property name="title">
     <string>Google 이미지 사용권</string>
    </property>
-   <widget class="QRadioButton" name="google_3">
-    <property name="geometry">
-     <rect>
-      <x>10</x>
-      <y>60</y>
-      <width>99</width>
-      <height>16</height>
-     </rect>
-    </property>
-    <property name="text">
-     <string>재사용 가능</string>
-    </property>
-   </widget>
-   <widget class="QRadioButton" name="google_2">
-    <property name="geometry">
-     <rect>
-      <x>10</x>
-      <y>40</y>
-      <width>160</width>
-      <height>16</height>
-     </rect>
-    </property>
-    <property name="text">
-     <string>수정 후 재사용 가능</string>
-    </property>
-   </widget>
-   <widget class="QRadioButton" name="google_5">
-    <property name="geometry">
-     <rect>
-      <x>10</x>
-      <y>80</y>
-      <width>210</width>
-      <height>16</height>
-     </rect>
-    </property>
-    <property name="text">
-     <string>비상업적 용도로 재사용 가능</string>
-    </property>
-   </widget>
-   <widget class="QRadioButton" name="google_1">
+   <widget class="QRadioButton" name="google_0">
     <property name="geometry">
      <rect>
       <x>10</x>
       <y>20</y>
-      <width>170</width>
+      <width>241</width>
       <height>16</height>
      </rect>
     </property>
@@ -155,12 +116,38 @@
      <string>라이선스로 필터링 안함</string>
     </property>
    </widget>
-   <widget class="QRadioButton" name="google_4">
+   <widget class="QRadioButton" name="google_1">
     <property name="geometry">
      <rect>
       <x>10</x>
-      <y>100</y>
-      <width>230</width>
+      <y>40</y>
+      <width>241</width>
+      <height>16</height>
+     </rect>
+    </property>
+    <property name="text">
+     <string>수정 후 재사용 가능</string>
+    </property>
+   </widget>
+   <widget class="QRadioButton" name="google_2">
+    <property name="geometry">
+     <rect>
+      <x>10</x>
+      <y>60</y>
+      <width>241</width>
+      <height>16</height>
+     </rect>
+    </property>
+    <property name="text">
+     <string>재사용 가능</string>
+    </property>
+   </widget>
+   <widget class="QRadioButton" name="google_3">
+    <property name="geometry">
+     <rect>
+      <x>10</x>
+      <y>80</y>
+      <width>241</width>
       <height>16</height>
      </rect>
     </property>
@@ -168,8 +155,21 @@
      <string>수정 후 비상업적 용도로 재사용 가능</string>
     </property>
    </widget>
+   <widget class="QRadioButton" name="google_4">
+    <property name="geometry">
+     <rect>
+      <x>10</x>
+      <y>100</y>
+      <width>241</width>
+      <height>16</height>
+     </rect>
+    </property>
+    <property name="text">
+     <string>비상업적 용도로 재사용 가능</string>
+    </property>
+   </widget>
   </widget>
-  <widget class="QProgressBar" name="result">
+  <widget class="QProgressBar" name="progress">
    <property name="geometry">
     <rect>
      <x>10</x>
@@ -195,7 +195,7 @@
     <string>사진 저장</string>
    </property>
   </widget>
-  <widget class="QLabel" name="error">
+  <widget class="QLabel" name="result">
    <property name="geometry">
     <rect>
      <x>10</x>
@@ -218,7 +218,7 @@
     </rect>
    </property>
   </widget>
-  <widget class="QDoubleSpinBox" name="doubleSpinBox">
+  <widget class="QSpinBox" name="spinBox">
    <property name="geometry">
     <rect>
      <x>290</x>

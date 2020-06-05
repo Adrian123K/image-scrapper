@@ -7,36 +7,23 @@
     <x>0</x>
     <y>0</y>
     <width>374</width>
-    <height>361</height>
+    <height>371</height>
    </rect>
   </property>
   <property name="windowTitle">
    <string>Dialog</string>
   </property>
-  <widget class="QPushButton" name="select_folder">
+  <widget class="QPushButton" name="download">
    <property name="geometry">
     <rect>
      <x>290</x>
-     <y>140</y>
+     <y>270</y>
      <width>75</width>
      <height>31</height>
     </rect>
    </property>
    <property name="text">
-    <string>폴더 선택</string>
-   </property>
-  </widget>
-  <widget class="QPlainTextEdit" name="search">
-   <property name="geometry">
-    <rect>
-     <x>10</x>
-     <y>220</y>
-     <width>271</width>
-     <height>31</height>
-    </rect>
-   </property>
-   <property name="plainText">
-    <string/>
+    <string>사진 저장</string>
    </property>
   </widget>
   <widget class="QGroupBox" name="engine_box">
@@ -174,7 +161,7 @@
     <rect>
      <x>10</x>
      <y>270</y>
-     <width>351</width>
+     <width>271</width>
      <height>31</height>
     </rect>
    </property>
@@ -182,26 +169,26 @@
     <number>0</number>
    </property>
   </widget>
-  <widget class="QPushButton" name="download">
+  <widget class="QPushButton" name="select_folder">
    <property name="geometry">
     <rect>
      <x>290</x>
-     <y>220</y>
+     <y>200</y>
      <width>75</width>
-     <height>31</height>
+     <height>21</height>
     </rect>
    </property>
    <property name="text">
-    <string>사진 저장</string>
+    <string>저장 경로</string>
    </property>
   </widget>
   <widget class="QLabel" name="result">
    <property name="geometry">
     <rect>
      <x>10</x>
-     <y>320</y>
+     <y>310</y>
      <width>351</width>
-     <height>31</height>
+     <height>51</height>
     </rect>
    </property>
    <property name="text">
@@ -212,20 +199,56 @@
    <property name="geometry">
     <rect>
      <x>10</x>
-     <y>140</y>
+     <y>190</y>
      <width>271</width>
-     <height>61</height>
+     <height>41</height>
     </rect>
    </property>
   </widget>
-  <widget class="QSpinBox" name="spinBox">
+  <widget class="QSpinBox" name="cnt">
    <property name="geometry">
     <rect>
      <x>290</x>
-     <y>180</y>
+     <y>240</y>
      <width>71</width>
-     <height>22</height>
+     <height>21</height>
     </rect>
+   </property>
+   <property name="maximum">
+    <number>1000</number>
+   </property>
+  </widget>
+  <widget class="QLineEdit" name="search">
+   <property name="geometry">
+    <rect>
+     <x>10</x>
+     <y>240</y>
+     <width>271</width>
+     <height>21</height>
+    </rect>
+   </property>
+  </widget>
+  <widget class="QTextBrowser" name="driver_path">
+   <property name="geometry">
+    <rect>
+     <x>10</x>
+     <y>140</y>
+     <width>271</width>
+     <height>41</height>
+    </rect>
+   </property>
+  </widget>
+  <widget class="QPushButton" name="select_driver">
+   <property name="geometry">
+    <rect>
+     <x>290</x>
+     <y>150</y>
+     <width>75</width>
+     <height>21</height>
+    </rect>
+   </property>
+   <property name="text">
+    <string>driver 경로</string>
    </property>
   </widget>
  </widget>

@@ -3,7 +3,7 @@
 
 # How to use
 1. 원하는 검색 엔진을 선택 합니다.
-  - Naver와 Bing은 저작권 선택하는 항목이 없으므로 사용 시 주의하시기 바랍니다.
+   - Naver와 Bing은 저작권 선택하는 항목이 없으므로 사용 시 주의하시기 바랍니다.
 2. (1에서 Google을 선택했을 경우 이미지 사용권을 선택 합니다.)
 3. 현재 Chrome Browser에서만 동작하므로 사용 시 Chrome Driver가 필요합니다.  
    Chrome Browser의 설정에서 사용중인 버전을 확인하신 후 [여기](https://chromedriver.chromium.org/downloads)에서 Chrome Driver를 다운로드합니다.

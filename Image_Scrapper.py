@@ -20,7 +20,7 @@ from selenium.webdriver.common.keys import Keys
 class GoogleThread(QThread):
     def __init__(self, copyright, search, result, driver_path, directory_path, cnt, parent=None): 
         QThread.__init__(self)
-        self.copyright = copyright
+        self.copyright = int(copyright)
         self.search = search
         self.result = result
         self.driver_path = driver_path.toPlainText()
@@ -68,7 +68,7 @@ class GoogleThread(QThread):
 class NaverThread(QThread):
     def __init__(self, copyright, search, result, driver_path, directory_path, cnt, parent=None): 
         QThread.__init__(self)
-        self.copyright = copyright
+        self.copyright = int(copyright)
         self.search = search
         self.result = result
         self.driver_path = driver_path.toPlainText()

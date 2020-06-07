@@ -24,7 +24,7 @@
 |Version|Date|Comments|
 |---|---|---|
 |1.0.0|2020-06-06|최초 제작|
-|1.1.0|2020-06-06|Progress Bar를 Real Time Count로 변경|
+|1.1.0|2020-06-07|Progress Bar를 Real Time Count로 변경|
 
 <br>
 

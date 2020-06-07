@@ -1,4 +1,4 @@
-# image_scrapper
+# Image Scrapper
 ![Image Scrapper](Image_Scrapper.png)
 
 # How to use

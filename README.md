@@ -27,6 +27,7 @@
 |1.1.0|2020-06-07|Progress Bar를 Real Time Count로 변경|
 |1.2.0|2020-06-07|Naver 추가|
 |1.3.0|2020-06-08|Naver copyright 추가|
+|1.3.1|2020-06-08|Naver CCL 없음 선택 시 오류 수정<br>→ copyright 변수를 기존 str에서 int로 변경|
 
 <br>
 

@@ -1,4 +1,4 @@
-# image_scrapper
+# Image Scrapper
 ![Image Scrapper](Image_Scrapper.png)
 
 # How to use
@@ -14,7 +14,8 @@
 
 <br>
 
-현재 Google만 사용 가능합니다.
+~현재 Google만 사용 가능합니다.~  
+2020.06.07자로 Naver가 추가되었습니다.
 
 # Skills
 - Python3
@@ -25,6 +26,7 @@
 |---|---|---|
 |1.0.0|2020-06-06|최초 제작|
 |1.1.0|2020-06-07|Progress Bar를 Real Time Count로 변경|
+|1.2.0|2020-06-07|Naver 추가|
 
 <br>
 

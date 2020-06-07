@@ -1,7 +1,7 @@
 #!/usr/bin/env python
 # coding: utf-8
 
-# In[ ]:
+# In[1]:
 
 
 import sys
@@ -28,11 +28,11 @@ class GoogleThread(QThread):
         self.cnt = cnt.value()
 
     def run(self):
-        self.result.setText(f'Chrome Browser를 시작합니다.')
+        self.result.setText(f'Chrome Browser를 시작합니다.\n잠시만 기다려주세요.')
         options = webdriver.ChromeOptions()
-        #options.add_argument('headless')
+        options.add_argument('headless')
         options.add_argument("disable-gpu")
-        #options.add_argument('--kiosk')
+        options.add_argument('--kiosk')
         browser = webdriver.Chrome(self.driver_path, chrome_options=options)
         
         browser.get("https://www.google.co.kr/imghp?hl=ko&tab=wi&ei=l1AdWbegOcra8QXvtr-4Cw&ved=0EKouCBUoAQ")
@@ -67,7 +67,53 @@ class GoogleThread(QThread):
 
 # Naver
 class NaverThread(QThread):
-    pass
+    def __init__(self, search, result, driver_path, directory_path, cnt, parent=None): 
+        QThread.__init__(self)
+        self.search = search
+        self.result = result
+        self.driver_path = driver_path.toPlainText()
+        self.directory_path = directory_path.toPlainText()
+        self.cnt = cnt.value()
+
+    def run(self):
+        self.result.setText(f'Chrome Browser를 시작합니다.\n잠시만 기다려주세요.')
+        options = webdriver.ChromeOptions()
+        options.add_argument('headless')
+        options.add_argument("disable-gpu")
+        options.add_argument('--kiosk')
+        browser = webdriver.Chrome(self.driver_path, chrome_options=options)
+        
+        browser.get("https://search.naver.com/search.naver?where=image&amp;sm=stb_nmr&amp;")
+        elem = browser.find_element_by_xpath('//*[@id="nx_query"]') 
+        elem.send_keys(self.search.text())
+        elem.submit()
+        
+        try: 
+            browser.find_element_by_css_selector('#notfound')
+            self.result.setText(f'검색어 \"{self.search.text()}\"와 일치하는 이미지 검색결과가 없습니다.')
+        except:
+            current_cnt = 1
+            for i in range(2, 13):
+                for j in range(50 if i == 2 or i == 12 else 100):
+                    try: 
+                        if i == 7 and not j: browser.find_element_by_xpath('//*[@id="_sau_imageTab"]/div[2]/div[8]/a').click()
+                    except: break
+                    
+                    self.result.setText(f'현재 {current_cnt}장의 이미지를 저장 중입니다.')
+                    try: 
+                        element = browser.find_element_by_xpath(f'//*[@id="_sau_imageTab"]/div[2]/div[{i}]/div[{j+1}]/a[1]/img')
+                        browser.execute_script("arguments[0].scrollIntoView();", element)
+                        image = element.get_attribute('src')
+                        urllib.request.urlretrieve(image, self.directory_path + '/' + str(current_cnt) + ".jpg")
+                    except: break
+                    if current_cnt >= self.cnt: break
+                    current_cnt += 1
+                if current_cnt >= self.cnt: break
+
+            if current_cnt == self.cnt: self.result.setText(f'작업이 완료되었습니다.\n{current_cnt}장의 이미지가 저장되었습니다.')
+            else: self.result.setText(f'작업이 완료되었습니다.\n검색된 이미지가 부족하여 {current_cnt - 1}장의 이미지만 저장되었습니다.')
+                
+        finally: browser.quit()
     
 # Bing
 class BingThread(QThread):
@@ -139,10 +185,10 @@ class Image_Scrapper(QtWidgets.QDialog):
                     self.googlethread = GoogleThread(select_copyright.index(True), self.search, self.result, self.driver_path, self.directory_path, self.cnt)
                     self.googlethread.start()
             elif select_engine.index(True) == 1: 
-                self.naverthread = NaverThread(self.search, self.result, self.driver_path, self.directory_path, self.cnt.value())
+                self.naverthread = NaverThread(self.search, self.result, self.driver_path, self.directory_path, self.cnt)
                 self.naverthread.start()
             elif select_engine.index(True) == 2: 
-                self.bingthread = BingThread(self.search, self.result, self.driver_path, self.directory_path, self.cnt.value())
+                self.bingthread = BingThread(self.search, self.result, self.driver_path, self.directory_path, self.cnt)
                 self.bingthread.start()
 
     # engine radio 선택 시 동작

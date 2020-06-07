@@ -1,5 +1,5 @@
 # Image Scrapper
-![Image Scrapper](Image_Scrapper.png)
+![Image Scrapper](Image_Scrapper.gif)
 
 # How to use
 1. 원하는 검색 엔진을 선택 합니다.

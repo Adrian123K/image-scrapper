@@ -62,13 +62,13 @@ class GoogleThread(QThread):
                     
             if current_cnt - ad_cnt - 1 == self.cnt: self.result.setText(f'작업이 완료되었습니다.\n{current_cnt - ad_cnt - 1}장의 이미지가 저장되었습니다.')
             else: self.result.setText(f'작업이 완료되었습니다.\n검색된 이미지가 부족하여 {current_cnt - ad_cnt - 1}장의 이미지만 저장되었습니다.')
-            
         finally: browser.quit()
 
 # Naver
 class NaverThread(QThread):
-    def __init__(self, search, result, driver_path, directory_path, cnt, parent=None): 
+    def __init__(self, copyright, search, result, driver_path, directory_path, cnt, parent=None): 
         QThread.__init__(self)
+        self.copyright = copyright
         self.search = search
         self.result = result
         self.driver_path = driver_path.toPlainText()
@@ -88,6 +88,10 @@ class NaverThread(QThread):
         elem.send_keys(self.search.text())
         elem.submit()
         
+        browser.execute_script("arguments[0].click();", browser.find_element_by_xpath('//*[@id="snb"]/div/ul/li[5]/a'))
+        if self.copyright: 
+            browser.execute_script("arguments[0].click();", browser.find_element_by_xpath(f'//*[@id="ccl_sort{self.copyright}"]'))
+            browser.execute_script("arguments[0].click();", browser.find_element_by_xpath('//*[@id="snb"]/div/ul/li[5]/div/div[1]/span/button'))
         try: 
             browser.find_element_by_css_selector('#notfound')
             self.result.setText(f'검색어 \"{self.search.text()}\"와 일치하는 이미지 검색결과가 없습니다.')
@@ -112,7 +116,6 @@ class NaverThread(QThread):
 
             if current_cnt == self.cnt: self.result.setText(f'작업이 완료되었습니다.\n{current_cnt}장의 이미지가 저장되었습니다.')
             else: self.result.setText(f'작업이 완료되었습니다.\n검색된 이미지가 부족하여 {current_cnt - 1}장의 이미지만 저장되었습니다.')
-                
         finally: browser.quit()
     
 # Bing
@@ -131,6 +134,12 @@ class Image_Scrapper(QtWidgets.QDialog):
         self.setWindowIcon(QtGui.QIcon('app_icon.jpg'))
         # github 이미지
         self.github.setStyleSheet('image:url(github.png);border:0px;')
+        # google copyright hide
+        self.google_copyright.hide()
+        # naver copyright hide
+        self.naver_copyright.hide()
+        # bing copyright hide
+        self.bing_copyright.hide()
         # driver 경로 text browser
         self.driver_path.clear()
         # 저장 경로 text browser
@@ -145,17 +154,13 @@ class Image_Scrapper(QtWidgets.QDialog):
         # 사진 저장 버튼 클릭
         self.download.clicked.connect(self.download_clicked)
         # engine radio 선택
-        self.google.clicked.connect(self.radio_clicked)
-        self.naver.clicked.connect(self.radio_clicked)
-        self.bing.clicked.connect(self.radio_clicked)
-        # copyright box 잠금
-        self.copyright_box.setEnabled(False)
-        # copyright radio 선택
-        self.google_0.clicked.connect(self.copyright_clicked)
-        self.google_1.clicked.connect(self.copyright_clicked)
-        self.google_2.clicked.connect(self.copyright_clicked)
-        self.google_3.clicked.connect(self.copyright_clicked)
-        self.google_4.clicked.connect(self.copyright_clicked)
+        self.google.clicked.connect(lambda state: self.radio_clicked(state, 'google'))
+        self.naver.clicked.connect(lambda state: self.radio_clicked(state, 'naver'))
+        self.bing.clicked.connect(lambda state: self.radio_clicked(state, 'bing'))
+        # google copyright radio 0번 선택
+        self.google_0.clicked.connect(lambda state: self.copyright_clicked(state, 'google'))
+        self.naver_0.clicked.connect(lambda state: self.copyright_clicked(state, 'naver'))
+        self.bing_0.clicked.connect(lambda state: self.copyright_clicked(state, 'bing'))
         # github 버튼 클릭
         self.github.clicked.connect(self.github_clicked)
         
@@ -175,42 +180,30 @@ class Image_Scrapper(QtWidgets.QDialog):
         if not self.search.text(): QtWidgets.QMessageBox.about(self, '경고', "검색어를 입력하세요.")
         elif not self.directory_path.toPlainText(): QtWidgets.QMessageBox.about(self, '경고', "저장 경로를 선택하세요.")
         else:
-            select_engine = [i.isChecked() for i in self.engine_box.children()]
-            if not select_engine.count(True): QtWidgets.QMessageBox.about(self, '경고', "검색 엔진을 선택하세요.")
-            elif select_engine.index(True) == 0: 
-                select_copyright = [i.isChecked() for i in self.copyright_box.children()]
-                if not select_copyright.count(True): QtWidgets.QMessageBox.about(self, '경고', "Google 이미지 사용권을 선택하세요.")
-                else:
-                    # google thread
-                    self.googlethread = GoogleThread(select_copyright.index(True), self.search, self.result, self.driver_path, self.directory_path, self.cnt)
-                    self.googlethread.start()
-            elif select_engine.index(True) == 1: 
-                self.naverthread = NaverThread(self.search, self.result, self.driver_path, self.directory_path, self.cnt)
-                self.naverthread.start()
-            elif select_engine.index(True) == 2: 
-                self.bingthread = BingThread(self.search, self.result, self.driver_path, self.directory_path, self.cnt)
-                self.bingthread.start()
+            for i in [j for j in self.engine_box.children() if not j.objectName() == 'github']:
+                if i.isChecked(): 
+                    select_engine = i.objectName()
+                    select_copyright = [i.objectName() for i in eval(f'self.{select_engine}_copyright.children()') if i.isChecked()]
+                    if not select_copyright:
+                        if select_engine == 'google': QtWidgets.QMessageBox.about(self, '경고', "Google 이미지 사용권을 선택하세요.")
+                        elif select_engine == 'naver': QtWidgets.QMessageBox.about(self, '경고', "Naver CCL을 선택하세요.")
+                        elif select_engine == 'bing': QtWidgets.QMessageBox.about(self, '경고', "Bing 라이선스를 선택하세요.")
+                    else: 
+                        exec(f'self.{select_engine}thread = {select_engine.capitalize()}Thread(select_copyright[0][-1], self.search, self.result, self.driver_path, self.directory_path, self.cnt)')
+                        exec(f'self.{select_engine}thread.start()')
 
     # engine radio 선택 시 동작
-    def radio_clicked(self, engine):
-        if self.google.isChecked():
-            self.copyright_box.setEnabled(True)
-        else:
-            reply = QtWidgets.QMessageBox.question(self, '경고', '저작권 문제가 있을 수 있습니다.\n계속 진행하시겠습니까?',
-                                                   QtWidgets.QMessageBox.Yes | QtWidgets.QMessageBox.No)
-            if reply == QtWidgets.QMessageBox.No:
-                self.google.setChecked(True)
-                self.copyright_box.setEnabled(True)
-            else:
-                self.copyright_box.setEnabled(False)
+    def radio_clicked(self, state, engine):
+        for i in [j for j in self.engine_box.children() if not j.objectName() == 'github']:
+            if i.isChecked() : exec(f'self.{i.objectName()}_copyright.show()')
+            else: exec(f'self.{i.objectName()}_copyright.hide()')
             
-    # copyright radio 선택 시 동작
-    def copyright_clicked(self, n):
-        if self.google_0.isChecked():
+    # copyright radio 0번 선택 시 동작
+    def copyright_clicked(self, state, engine):
+        if eval(f'self.{engine}_0.isChecked()'):
             reply = QtWidgets.QMessageBox.question(self, '경고', '저작권 문제가 있을 수 있습니다.\n계속 진행하시겠습니까?',
                                                    QtWidgets.QMessageBox.Yes | QtWidgets.QMessageBox.No)
-            if reply == QtWidgets.QMessageBox.No:
-                self.google_1.setChecked(True)
+            if reply == QtWidgets.QMessageBox.No: exec(f'self.{engine}_1.setChecked(True)')
     
     # github 버튼 클릭 시 동작
     def github_clicked(self):

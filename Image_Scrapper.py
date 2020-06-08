@@ -232,6 +232,7 @@ class Image_Scrapper(QtWidgets.QDialog):
     def download_clicked(self):
         if not self.search.text(): QtWidgets.QMessageBox.about(self, '경고', "검색어를 입력하세요.")
         elif not self.directory_path.toPlainText(): QtWidgets.QMessageBox.about(self, '경고', "저장 경로를 선택하세요.")
+        elif not self.driver_path.toPlainText(): QtWidgets.QMessageBox.about(self, '경고', "driver 경로를 선택하세요.")
         else:
             for i in [j for j in self.engine_box.children() if not j.objectName() == 'github']:
                 if i.isChecked(): 

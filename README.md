@@ -31,6 +31,7 @@
 |1.3.1|2020-06-08|Naver CCL 없음 선택 시 오류 수정<br>→ copyright 변수를 기존 str에서 int로 변경|
 |1.3.2|2020-06-08|Naver copyright object명 수정<br>→'Bing 라이선스'에서 'Naver CCL'로 변경|
 |1.4.0|2020-06-08|Bing 추가|
+|1.4.1|2020-06-08|Driver 경로 미 입력 시 경고창 뜨도록 수정|
 
 <br>
 

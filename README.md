@@ -14,7 +14,8 @@
 <br>
 
 ~현재 Google만 사용 가능합니다.~  
-2020.06.07자로 Naver가 추가되었습니다.
+~2020.06.07자로 Naver가 추가되었습니다.~  
+2020.06.08자로 Bing이 추가되었습니다.
 
 # Skills
 - Python3
@@ -28,6 +29,8 @@
 |1.2.0|2020-06-07|Naver 추가|
 |1.3.0|2020-06-08|Naver copyright 추가|
 |1.3.1|2020-06-08|Naver CCL 없음 선택 시 오류 수정<br>→ copyright 변수를 기존 str에서 int로 변경|
+|1.3.2|2020-06-08|Naver copyright object명 수정<br>→'Bing 라이선스'에서 'Naver CCL'로 변경|
+|1.4.0|2020-06-08|Bing 추가|
 
 <br>
 

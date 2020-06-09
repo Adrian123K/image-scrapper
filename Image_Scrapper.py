@@ -15,6 +15,7 @@ import urllib.request
 from  bs4 import BeautifulSoup
 from selenium import webdriver
 from selenium.webdriver.common.keys import Keys
+from ui import Image_Scrapper_ui 
 
 # Google
 class GoogleThread(QThread):
@@ -33,7 +34,8 @@ class GoogleThread(QThread):
         options.add_argument('headless')
         options.add_argument("disable-gpu")
         options.add_argument('--kiosk')
-        browser = webdriver.Chrome(self.driver_path, chrome_options=options)
+        try: browser = webdriver.Chrome(self.driver_path, chrome_options=options)
+        except: self.result.setText(f'Chrome Driver 버전을 확인해주세요.')
         
         browser.get("https://www.google.co.kr/imghp?hl=ko&tab=wi&ei=l1AdWbegOcra8QXvtr-4Cw&ved=0EKouCBUoAQ")
         elem = browser.find_element_by_xpath("//*[@class='gLFyf gsfi']") 
@@ -81,7 +83,8 @@ class NaverThread(QThread):
         options.add_argument('headless')
         options.add_argument("disable-gpu")
         options.add_argument('--kiosk')
-        browser = webdriver.Chrome(self.driver_path, chrome_options=options)
+        try: browser = webdriver.Chrome(self.driver_path, chrome_options=options)
+        except: self.result.setText(f'Chrome Driver 버전을 확인해주세요.')
         
         browser.get("https://search.naver.com/search.naver?where=image&amp;sm=stb_nmr&amp;")
         elem = browser.find_element_by_xpath('//*[@id="nx_query"]') 
@@ -135,12 +138,14 @@ class BingThread(QThread):
         options.add_argument('headless')
         options.add_argument("disable-gpu")
         options.add_argument('--kiosk')
-        browser = webdriver.Chrome(self.driver_path, chrome_options=options)
+        try: browser = webdriver.Chrome(self.driver_path, chrome_options=options)
+        except: self.result.setText(f'Chrome Driver 버전을 확인해주세요.')
         
-        browser.get("https://www.bing.com/images?FORM=Z9LH")
+        browser.get("https://www.bing.com/")
         elem = browser.find_element_by_xpath('//*[@id="sb_form_q"]') 
         elem.send_keys(self.search.text())
         elem.submit()
+        
         
         browser.execute_script("arguments[0].click();", browser.find_element_by_xpath('//*[@id="b-scopeListItem-images"]/a'))
         try:
@@ -150,24 +155,24 @@ class BingThread(QThread):
                 browser.execute_script("arguments[0].click();", browser.find_element_by_xpath(f'//*[@id="ftrB"]/ul/li[7]/div/div/a[{self.copyright+1}]'))
                 
             current_cnt = 1
-            current_line = 1
+            current_row = 1
             while 1:
                 try:
-                    parent_element = browser.find_element_by_xpath(f'//*[@id="mmComponent_images_2"]/ul[{current_line}]')
+                    parent_element = browser.find_element_by_xpath(f'//*[@id="mmComponent_images_2_list_{current_row}"]')
                     child_element = parent_element.find_elements_by_tag_name('li')
                     child_cnt = len(child_element)
                 except: break
                 try:
                     for i in range(1, child_cnt+1):
                         self.result.setText(f'현재 {current_cnt}장의 이미지를 저장 중입니다.')
-                        element = browser.find_element_by_xpath(f'//*[@id="mmComponent_images_2"]/ul[{current_line}]/li[{i}]/div/div/a/div/img')
+                        element = browser.find_element_by_xpath(f'//*[@id="mmComponent_images_2_list_{current_row}"]/li[{i}]/div/div/a/div/img')
                         browser.execute_script("arguments[0].scrollIntoView();", element)
                         image = element.get_attribute('src')
                         urllib.request.urlretrieve(image, self.directory_path + '/' + str(current_cnt) + ".jpg")
                         current_cnt += 1
                         if current_cnt > self.cnt: break
                     if current_cnt > self.cnt: break
-                    current_line += 1
+                    current_row += 1
                 except: break
             
             if current_cnt - 1 == self.cnt: self.result.setText(f'작업이 완료되었습니다.\n{current_cnt - 1}장의 이미지가 저장되었습니다.')
@@ -176,23 +181,22 @@ class BingThread(QThread):
         finally: browser.quit()
 
 # UI
-class Image_Scrapper(QtWidgets.QDialog):
-    def __init__(self, parent=None):
-        QtWidgets.QDialog.__init__(self, parent)
-        self.ui = uic.loadUi('Image_Scrapper.ui', self)
-        self.ui.show()
-        # 어플리케이션 이름
-        self.setWindowTitle('Image Scrapper')
-        # 어플리케이션 아이콘
-        self.setWindowIcon(QtGui.QIcon('app_icon.jpg'))
-        # github 이미지
-        self.github.setStyleSheet('image:url(github.png);border:0px;')
+class Image_Scrapper(QtWidgets.QDialog, Image_Scrapper_ui.Ui_Dialog):
+    def __init__(self):
+        QtWidgets.QDialog.__init__(self)
+        self.setupUi(self)
         # google copyright hide
         self.google_copyright.hide()
         # naver copyright hide
         self.naver_copyright.hide()
         # bing copyright hide
         self.bing_copyright.hide()
+        # 어플리케이션 이름
+        self.setWindowTitle('Image Scrapper 1.4.2')
+        # 어플리케이션 아이콘
+        self.setWindowIcon(QtGui.QIcon('./images/app_icon.jpg'))
+        # github 이미지
+        self.github.setStyleSheet('image:url(./images/github.png);border:0px;')
         # driver 경로 text browser
         self.driver_path.clear()
         # 저장 경로 text browser
@@ -266,6 +270,7 @@ class Image_Scrapper(QtWidgets.QDialog):
         
 if __name__ == "__main__":
     app = QtWidgets.QApplication(sys.argv)
-    w = Image_Scrapper()
+    img_scrap = Image_Scrapper()
+    img_scrap.show()
     app.exec_()
 

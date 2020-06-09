@@ -20,6 +20,8 @@
 # Skills
 - Python3
 - PyQt5
+- Selenium
+- BeautifulSoup
 
 # Release  
 |Version|Date|Comments|

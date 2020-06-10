@@ -12,7 +12,6 @@ from PyQt5 import QtCore
 from PyQt5.QtCore import pyqtSlot
 from PyQt5.QtCore import QThread
 import urllib.request
-#from  bs4 import BeautifulSoup
 from selenium import webdriver
 from selenium.common.exceptions import *
 from ui import Image_Scrapper_ui 
@@ -66,7 +65,9 @@ class GoogleThread(QThread):
                                 browser.execute_script("arguments[0].scrollIntoView();", element)
                                 image = element.get_attribute('src') if element.get_attribute('src') else element.get_attribute('data-src')
                                 urllib.request.urlretrieve(image, self.directory_path + '/' + str(current_cnt - ad_cnt) + ".jpg")
-                        except NoSuchElementException: break
+                        except NoSuchElementException: 
+                            current_cnt -= 1
+                            break
                         except Exception as e: 
                             print(3, type(e), ': ', e)
                         finally: current_cnt += 1
@@ -79,7 +80,7 @@ class GoogleThread(QThread):
             finally: browser.quit()
         except UnboundLocalError: pass
         except Exception as e:
-            self.result.setText('알 수 없는 오류로 중지됩니다.')
+            self.result.setText(f'{type(e)}\n알 수 없는 오류로 중지됩니다.')
             print(5, type(e), ': ', e)
 
 # Naver
@@ -94,48 +95,65 @@ class NaverThread(QThread):
         self.cnt = cnt.value()
 
     def run(self):
-        self.result.setText(f'Chrome Browser를 시작합니다.\n잠시만 기다려주세요.')
-        options = webdriver.ChromeOptions()
-        options.add_argument('headless')
-        options.add_argument("disable-gpu")
-        options.add_argument('--kiosk')
-        try: browser = webdriver.Chrome(self.driver_path, chrome_options=options)
-        except: self.result.setText(f'Chrome Driver 버전을 확인해주세요.')
-        
-        browser.get("https://search.naver.com/search.naver?where=image&amp;sm=stb_nmr&amp;")
-        elem = browser.find_element_by_xpath('//*[@id="nx_query"]') 
-        elem.send_keys(self.search.text())
-        elem.submit()
-        
-        browser.execute_script("arguments[0].click();", browser.find_element_by_xpath('//*[@id="snb"]/div/ul/li[5]/a'))
-        if self.copyright: 
-            browser.execute_script("arguments[0].click();", browser.find_element_by_xpath(f'//*[@id="ccl_sort{self.copyright}"]'))
-            browser.execute_script("arguments[0].click();", browser.find_element_by_xpath('//*[@id="snb"]/div/ul/li[5]/div/div[1]/span/button'))
-        try: 
-            browser.find_element_by_css_selector('#notfound')
-            self.result.setText(f'검색어 \"{self.search.text()}\"와 일치하는 이미지 검색결과가 없습니다.')
-        except:
-            current_cnt = 1
-            for i in range(2, 13):
-                for j in range(50 if i == 2 or i == 12 else 100):
-                    try: 
-                        if i == 7 and not j: browser.find_element_by_xpath('//*[@id="_sau_imageTab"]/div[2]/div[8]/a').click()
-                    except: break
-                    
-                    self.result.setText(f'현재 {current_cnt}장의 이미지를 저장 중입니다.')
-                    try: 
-                        element = browser.find_element_by_xpath(f'//*[@id="_sau_imageTab"]/div[2]/div[{i}]/div[{j+1}]/a[1]/img')
-                        browser.execute_script("arguments[0].scrollIntoView();", element)
-                        image = element.get_attribute('src')
-                        urllib.request.urlretrieve(image, self.directory_path + '/' + str(current_cnt) + ".jpg")
-                    except: break
-                    if current_cnt >= self.cnt: break
-                    current_cnt += 1
-                if current_cnt >= self.cnt: break
+        try:
+            self.result.setText(f'Chrome Browser를 시작합니다.\n잠시만 기다려주세요.')
+            options = webdriver.ChromeOptions()
+            options.add_argument('headless')
+            options.add_argument("disable-gpu")
+            options.add_argument('--kiosk')
+            try: browser = webdriver.Chrome(self.driver_path, chrome_options=options)
+            except OSError: self.result.setText(f'Chrome Driver 버전을 확인해주세요.')
+            except Exception as e:
+                print(1, type(e), e)
 
-            if current_cnt == self.cnt: self.result.setText(f'작업이 완료되었습니다.\n{current_cnt}장의 이미지가 저장되었습니다.')
-            else: self.result.setText(f'작업이 완료되었습니다.\n검색된 이미지가 부족하여 {current_cnt - 1}장의 이미지만 저장되었습니다.')
-        finally: browser.quit()
+            browser.get("https://search.naver.com/search.naver?where=image&amp;sm=stb_nmr&amp;")
+            elem = browser.find_element_by_xpath('//*[@id="nx_query"]') 
+            elem.send_keys(self.search.text())
+            elem.submit()
+
+            browser.execute_script("arguments[0].click();", browser.find_element_by_xpath('//*[@id="snb"]/div/ul/li[5]/a'))
+            if self.copyright: 
+                browser.execute_script("arguments[0].click();", browser.find_element_by_xpath(f'//*[@id="ccl_sort{self.copyright}"]'))
+                browser.execute_script("arguments[0].click();", browser.find_element_by_xpath('//*[@id="snb"]/div/ul/li[5]/div/div[1]/span/button'))
+            try: 
+                browser.find_element_by_css_selector('#notfound')
+                self.result.setText(f'검색어 \"{self.search.text()}\"와 일치하는 이미지 검색결과가 없습니다.')
+            except NoSuchElementException:
+                current_cnt = 1
+                for i in range(2, 13):
+                    try:
+                        if i == 7: browser.find_element_by_xpath('//*[@id="_sau_imageTab"]/div[2]/div[8]/a').click()
+                    except NoSuchElementException: break
+                    except Exception as e: 
+                        print(2, type(e), e)
+                    try:
+                        parent_element = browser.find_element_by_xpath(f'//*[@id="_sau_imageTab"]/div[2]/div[{i}]')
+                        child_element = parent_element.find_elements_by_tag_name('div')
+                    except NoSuchElementException: break
+                    except Exception as e: 
+                        print(2, type(e), e)
+                    for j in range(len(child_element)):
+                        self.result.setText(f'현재 {current_cnt}장의 이미지를 저장 중입니다.')
+                        try:
+                            element = browser.find_element_by_xpath(f'//*[@id="_sau_imageTab"]/div[2]/div[{i}]/div[{j+1}]/a[1]/img')
+                            browser.execute_script("arguments[0].scrollIntoView();", element)
+                            image = element.get_attribute('src')
+                            urllib.request.urlretrieve(image, self.directory_path + '/' + str(current_cnt) + ".jpg")
+                        except NoSuchElementException: break
+                        except Exception as e: 
+                            print(3, type(e), e)
+                        if current_cnt >= self.cnt: break
+                        current_cnt += 1
+                    if current_cnt >= self.cnt: break
+                if current_cnt == self.cnt: self.result.setText(f'작업이 완료되었습니다.\n{current_cnt}장의 이미지가 저장되었습니다.')
+                else: self.result.setText(f'작업이 완료되었습니다.\n검색된 이미지가 부족하여 {current_cnt - 1}장의 이미지만 저장되었습니다.')
+            except Exception as e:
+                print(4, type(e), e)
+            finally: browser.quit()
+        except UnboundLocalError: pass
+        except Exception as e:
+            self.result.setText(f'{type(e)}\n알 수 없는 오류로 중지됩니다.')
+            print(5, type(e), e)
     
 # Bing
 class BingThread(QThread):
@@ -149,52 +167,63 @@ class BingThread(QThread):
         self.cnt = cnt.value()
 
     def run(self):
-        self.result.setText(f'Chrome Browser를 시작합니다.\n잠시만 기다려주세요.')
-        options = webdriver.ChromeOptions()
-        options.add_argument('headless')
-        options.add_argument("disable-gpu")
-        options.add_argument('--kiosk')
-        try: browser = webdriver.Chrome(self.driver_path, chrome_options=options)
-        except: self.result.setText(f'Chrome Driver 버전을 확인해주세요.')
-        
-        browser.get("https://www.bing.com/")
-        elem = browser.find_element_by_xpath('//*[@id="sb_form_q"]') 
-        elem.send_keys(self.search.text())
-        elem.submit()
-        
-        
-        browser.execute_script("arguments[0].click();", browser.find_element_by_xpath('//*[@id="b-scopeListItem-images"]/a'))
         try:
-            browser.execute_script("arguments[0].click();", browser.find_element_by_xpath('//*[@id="fltIdt"]'))
-            browser.execute_script("arguments[0].click();", browser.find_element_by_xpath('//*[@id="ftrB"]/ul/li[7]/span'))
-            if self.copyright: 
-                browser.execute_script("arguments[0].click();", browser.find_element_by_xpath(f'//*[@id="ftrB"]/ul/li[7]/div/div/a[{self.copyright+1}]'))
-                
-            current_cnt = 1
-            current_row = 1
-            while 1:
-                try:
-                    parent_element = browser.find_element_by_xpath(f'//*[@id="mmComponent_images_2_list_{current_row}"]')
-                    child_element = parent_element.find_elements_by_tag_name('li')
-                    child_cnt = len(child_element)
-                except: break
-                try:
-                    for i in range(1, child_cnt+1):
-                        self.result.setText(f'현재 {current_cnt}장의 이미지를 저장 중입니다.')
-                        element = browser.find_element_by_xpath(f'//*[@id="mmComponent_images_2_list_{current_row}"]/li[{i}]/div/div/a/div/img')
-                        browser.execute_script("arguments[0].scrollIntoView();", element)
-                        image = element.get_attribute('src')
-                        urllib.request.urlretrieve(image, self.directory_path + '/' + str(current_cnt) + ".jpg")
-                        current_cnt += 1
+            self.result.setText(f'Chrome Browser를 시작합니다.\n잠시만 기다려주세요.')
+            options = webdriver.ChromeOptions()
+            options.add_argument('headless')
+            options.add_argument("disable-gpu")
+            options.add_argument('--kiosk')
+            try: browser = webdriver.Chrome(self.driver_path, chrome_options=options)
+            except OSError: self.result.setText(f'Chrome Driver 버전을 확인해주세요.')
+            except Exception as e:
+                print(1, type(e), e)
+
+            browser.get("https://www.bing.com/")
+            elem = browser.find_element_by_xpath('//*[@id="sb_form_q"]') 
+            elem.send_keys(self.search.text())
+            elem.submit()
+
+            browser.execute_script("arguments[0].click();", browser.find_element_by_xpath('//*[@id="b-scopeListItem-images"]/a'))
+            try:
+                browser.execute_script("arguments[0].click();", browser.find_element_by_xpath('//*[@id="fltIdt"]'))
+                browser.execute_script("arguments[0].click();", browser.find_element_by_xpath('//*[@id="ftrB"]/ul/li[7]/span'))
+                if self.copyright: 
+                    browser.execute_script("arguments[0].click();", browser.find_element_by_xpath(f'//*[@id="ftrB"]/ul/li[7]/div/div/a[{self.copyright+1}]'))
+                current_cnt = 1
+                current_row = 1
+                while 1:
+                    try:
+                        parent_element = browser.find_element_by_xpath(f'//*[@id="mmComponent_images_2_list_{current_row}"]')
+                        child_element = parent_element.find_elements_by_tag_name('li')
+                        child_cnt = len(child_element)
+                    except Exception as e:
+                        print(2, type(e), e)
+                        break
+                    try:
+                        for i in range(1, child_cnt+1):
+                            self.result.setText(f'현재 {current_cnt}장의 이미지를 저장 중입니다.')
+                            element = browser.find_element_by_xpath(f'//*[@id="mmComponent_images_2_list_{current_row}"]/li[{i}]/div/div/a/div/img')
+                            browser.execute_script("arguments[0].scrollIntoView();", element)
+                            image = element.get_attribute('src')
+                            urllib.request.urlretrieve(image, self.directory_path + '/' + str(current_cnt) + ".jpg")
+                            current_cnt += 1
+                            if current_cnt > self.cnt: break
                         if current_cnt > self.cnt: break
-                    if current_cnt > self.cnt: break
-                    current_row += 1
-                except: break
-            
-            if current_cnt - 1 == self.cnt: self.result.setText(f'작업이 완료되었습니다.\n{current_cnt - 1}장의 이미지가 저장되었습니다.')
-            else: self.result.setText(f'작업이 완료되었습니다.\n검색된 이미지가 부족하여 {current_cnt - 1}장의 이미지만 저장되었습니다.')
-        except: self.result.setText(f'검색어 \"{self.search.text()}\"와 일치하는 이미지 검색결과가 없습니다.')
-        finally: browser.quit()
+                        current_row += 1
+                    except Exception as e:
+                        print(3, type(e), e)
+                        break
+
+                if current_cnt - 1 == self.cnt: self.result.setText(f'작업이 완료되었습니다.\n{current_cnt - 1}장의 이미지가 저장되었습니다.')
+                else: self.result.setText(f'작업이 완료되었습니다.\n검색된 이미지가 부족하여 {current_cnt - 1}장의 이미지만 저장되었습니다.')
+            except Exception as e:
+                self.result.setText(f'검색어 \"{self.search.text()}\"와 일치하는 이미지 검색결과가 없습니다.')
+                print(4, type(e), e)
+            finally: browser.quit()
+        except UnboundLocalError: pass
+        except Exception as e:
+            self.result.setText(f'{type(e)}\n알 수 없는 오류로 중지됩니다.')
+            print(5, type(e), ': ', e)
 
 # UI
 class Image_Scrapper(QtWidgets.QDialog, Image_Scrapper_ui.Ui_Dialog):

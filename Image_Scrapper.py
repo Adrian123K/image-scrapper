@@ -12,7 +12,7 @@ from PyQt5 import QtCore
 from PyQt5.QtCore import pyqtSlot
 from PyQt5.QtCore import QThread
 import urllib.request
-from  bs4 import BeautifulSoup
+#from  bs4 import BeautifulSoup
 from selenium import webdriver
 from selenium.common.exceptions import *
 from ui import Image_Scrapper_ui 
@@ -55,22 +55,23 @@ class GoogleThread(QThread):
                 current_cnt = 1; ad_cnt = 0
                 while current_cnt - ad_cnt <= self.cnt:
                     self.result.setText(f'현재 {current_cnt - ad_cnt}장의 이미지를 저장 중입니다.')
-                    try: 
-                        element = browser.find_element_by_xpath(f'//*[@id="islrg"]/div[1]/div[{current_cnt}]/a[1]/div[1]/img')
-                        browser.execute_script("arguments[0].scrollIntoView();", element)
-                    except NoSuchElementException:
-                        ad_cnt += 1
-                    except Exception as e: 
-                        print(3, type(e), ': ', e)
-                    else:
-                        try: browser.find_element_by_xpath('//*[@id="islmp"]/div/div/div/div/div[5]/input').click()
-                        except ElementNotVisibleException:
-                            image = element.get_attribute('src') if element.get_attribute('src') else element.get_attribute('data-src')
-                            urllib.request.urlretrieve(image, self.directory_path + '/' + str(current_cnt - ad_cnt) + ".jpg")
-                        except Exception as e:
-                            print(4, type(e), ': ', e)
-                    finally: current_cnt += 1
-                print(current_cnt, ad_cnt)
+                    try: browser.find_element_by_xpath('//*[@id="islmp"]/div/div/div/div/div[5]/input').click()
+                    except ElementNotVisibleException:
+                        try: 
+                            parent_element = browser.find_element_by_xpath(f'//*[@id="islrg"]/div[1]/div[{current_cnt}]')
+                            child_element = parent_element.find_elements_by_tag_name('a')
+                            if len(child_element) > 2: ad_cnt += 1
+                            else: 
+                                element = browser.find_element_by_xpath(f'//*[@id="islrg"]/div[1]/div[{current_cnt}]/a[1]/div[1]/img')
+                                browser.execute_script("arguments[0].scrollIntoView();", element)
+                                image = element.get_attribute('src') if element.get_attribute('src') else element.get_attribute('data-src')
+                                urllib.request.urlretrieve(image, self.directory_path + '/' + str(current_cnt - ad_cnt) + ".jpg")
+                        except NoSuchElementException: break
+                        except Exception as e: 
+                            print(3, type(e), ': ', e)
+                        finally: current_cnt += 1
+                    except Exception as e:
+                        print(4, type(e), ': ', e)
                 if current_cnt - ad_cnt - 1 == self.cnt: self.result.setText(f'작업이 완료되었습니다.\n{current_cnt - ad_cnt - 1}장의 이미지가 저장되었습니다.')
                 else: self.result.setText(f'작업이 완료되었습니다.\n검색된 이미지가 부족하여 {current_cnt - ad_cnt - 1}장의 이미지만 저장되었습니다.')
             except Exception as e:
@@ -207,7 +208,7 @@ class Image_Scrapper(QtWidgets.QDialog, Image_Scrapper_ui.Ui_Dialog):
         # bing copyright hide
         self.bing_copyright.hide()
         # 어플리케이션 이름
-        self.setWindowTitle('Image Scrapper 1.4.2')
+        self.setWindowTitle('Image Scrapper 1.4.3')
         # 어플리케이션 아이콘
         self.setWindowIcon(QtGui.QIcon('./images/app_icon.jpg'))
         # github 이미지

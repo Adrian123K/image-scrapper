@@ -1,7 +1,7 @@
 #!/usr/bin/env python
 # coding: utf-8
 
-# In[1]:
+# In[ ]:
 
 
 import sys
@@ -14,7 +14,7 @@ from PyQt5.QtCore import QThread
 import urllib.request
 from  bs4 import BeautifulSoup
 from selenium import webdriver
-from selenium.webdriver.common.keys import Keys
+from selenium.common.exceptions import *
 from ui import Image_Scrapper_ui 
 
 # Google
@@ -29,42 +29,57 @@ class GoogleThread(QThread):
         self.cnt = cnt.value()
 
     def run(self):
-        self.result.setText(f'Chrome Browser를 시작합니다.\n잠시만 기다려주세요.')
-        options = webdriver.ChromeOptions()
-        options.add_argument('headless')
-        options.add_argument("disable-gpu")
-        options.add_argument('--kiosk')
-        try: browser = webdriver.Chrome(self.driver_path, chrome_options=options)
-        except: self.result.setText(f'Chrome Driver 버전을 확인해주세요.')
-        
-        browser.get("https://www.google.co.kr/imghp?hl=ko&tab=wi&ei=l1AdWbegOcra8QXvtr-4Cw&ved=0EKouCBUoAQ")
-        elem = browser.find_element_by_xpath("//*[@class='gLFyf gsfi']") 
-        elem.send_keys(self.search.text())
-        elem.submit()
-        browser.execute_script("arguments[0].click();", browser.find_element_by_xpath('//*[@id="yDmH0d"]/div[2]/c-wiz/div[1]/div/div[1]/div[2]/div[2]/div/div'))
-        browser.execute_script("arguments[0].click();", browser.find_element_by_xpath('//*[@id="yDmH0d"]/div[2]/c-wiz/div[2]/c-wiz/div/div/div[2]/div/div[3]/div'))
-        if self.copyright: 
-            browser.execute_script("arguments[0].click();", browser.find_element_by_xpath(f'//*[@id="yDmH0d"]/div[2]/c-wiz/div[2]/c-wiz[1]/div/div/div[3]/div/a[{self.copyright}]/div'))
-        try: 
-            browser.find_element_by_css_selector('#islmp > div > div > p.M5HqZb')
-            self.result.setText(f'검색어 \"{self.search.text()}\"와 일치하는 이미지 검색결과가 없습니다.')
-        except:
-            current_cnt = 1; ad_cnt = 0
-            while current_cnt <= self.cnt:
-                self.result.setText(f'현재 {current_cnt - ad_cnt}장의 이미지를 저장 중입니다.')
-                try: element = browser.find_element_by_xpath(f'//*[@id="islrg"]/div[1]/div[{current_cnt}]/a[1]/div[1]/img')
-                except: ad_cnt += 1
-                else:
-                    try: browser.find_element_by_xpath('//*[@id="islmp"]/div/div/div/div/div[5]/input').click()
-                    except:
+        try:
+            self.result.setText(f'Chrome Browser를 시작합니다.\n잠시만 기다려주세요.')
+            options = webdriver.ChromeOptions()
+            options.add_argument('headless')
+            options.add_argument("disable-gpu")
+            options.add_argument('--kiosk')
+            try: browser = webdriver.Chrome(self.driver_path, chrome_options=options)
+            except OSError: self.result.setText(f'Chrome Driver 버전을 확인해주세요.')
+            except Exception as e:
+                print(1, type(e), e)
+
+            browser.get("https://www.google.co.kr/imghp?hl=ko&tab=wi&ei=l1AdWbegOcra8QXvtr-4Cw&ved=0EKouCBUoAQ")
+            elem = browser.find_element_by_xpath("//*[@class='gLFyf gsfi']") 
+            elem.send_keys(self.search.text())
+            elem.submit()
+            browser.execute_script("arguments[0].click();", browser.find_element_by_xpath('//*[@id="yDmH0d"]/div[2]/c-wiz/div[1]/div/div[1]/div[2]/div[2]/div/div'))
+            browser.execute_script("arguments[0].click();", browser.find_element_by_xpath('//*[@id="yDmH0d"]/div[2]/c-wiz/div[2]/c-wiz/div/div/div[2]/div/div[3]/div'))
+            if self.copyright: 
+                browser.execute_script("arguments[0].click();", browser.find_element_by_xpath(f'//*[@id="yDmH0d"]/div[2]/c-wiz/div[2]/c-wiz[1]/div/div/div[3]/div/a[{self.copyright}]/div'))
+            try: 
+                browser.find_element_by_css_selector('#islmp > div > div > p.M5HqZb')
+                self.result.setText(f'검색어 \"{self.search.text()}\"와 일치하는 이미지 검색결과가 없습니다.')
+            except NoSuchElementException:
+                current_cnt = 1; ad_cnt = 0
+                while current_cnt - ad_cnt <= self.cnt:
+                    self.result.setText(f'현재 {current_cnt - ad_cnt}장의 이미지를 저장 중입니다.')
+                    try: 
+                        element = browser.find_element_by_xpath(f'//*[@id="islrg"]/div[1]/div[{current_cnt}]/a[1]/div[1]/img')
                         browser.execute_script("arguments[0].scrollIntoView();", element)
-                        image = element.get_attribute('src')
-                        urllib.request.urlretrieve(image, self.directory_path + '/' + str(current_cnt - ad_cnt) + ".jpg")
-                finally: current_cnt += 1
-                    
-            if current_cnt - ad_cnt - 1 == self.cnt: self.result.setText(f'작업이 완료되었습니다.\n{current_cnt - ad_cnt - 1}장의 이미지가 저장되었습니다.')
-            else: self.result.setText(f'작업이 완료되었습니다.\n검색된 이미지가 부족하여 {current_cnt - ad_cnt - 1}장의 이미지만 저장되었습니다.')
-        finally: browser.quit()
+                    except NoSuchElementException:
+                        ad_cnt += 1
+                    except Exception as e: 
+                        print(3, type(e), ': ', e)
+                    else:
+                        try: browser.find_element_by_xpath('//*[@id="islmp"]/div/div/div/div/div[5]/input').click()
+                        except ElementNotVisibleException:
+                            image = element.get_attribute('src') if element.get_attribute('src') else element.get_attribute('data-src')
+                            urllib.request.urlretrieve(image, self.directory_path + '/' + str(current_cnt - ad_cnt) + ".jpg")
+                        except Exception as e:
+                            print(4, type(e), ': ', e)
+                    finally: current_cnt += 1
+                print(current_cnt, ad_cnt)
+                if current_cnt - ad_cnt - 1 == self.cnt: self.result.setText(f'작업이 완료되었습니다.\n{current_cnt - ad_cnt - 1}장의 이미지가 저장되었습니다.')
+                else: self.result.setText(f'작업이 완료되었습니다.\n검색된 이미지가 부족하여 {current_cnt - ad_cnt - 1}장의 이미지만 저장되었습니다.')
+            except Exception as e:
+                print(2, type(e), ': ', e)
+            finally: browser.quit()
+        except UnboundLocalError: pass
+        except Exception as e:
+            self.result.setText('알 수 없는 오류로 중지됩니다.')
+            print(5, type(e), ': ', e)
 
 # Naver
 class NaverThread(QThread):

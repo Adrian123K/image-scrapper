@@ -44,7 +44,7 @@ class GoogleThread(QThread):
             elem.send_keys(self.search.text())
             elem.submit()
             browser.execute_script("arguments[0].click();", browser.find_element_by_xpath('//*[@id="yDmH0d"]/div[2]/c-wiz/div[1]/div/div[1]/div[2]/div[2]/div/div'))
-            browser.execute_script("arguments[0].click();", browser.find_element_by_xpath('//*[@id="yDmH0d"]/div[2]/c-wiz/div[2]/c-wiz/div/div/div[2]/div/div[3]/div'))
+            browser.execute_script("arguments[0].click();", browser.find_element_by_xpath('//*[@id="yDmH0d"]/div[2]/c-wiz/div[2]/c-wiz[1]/div/div/div[1]/div/div[3]'))
             if self.copyright: 
                 browser.execute_script("arguments[0].click();", browser.find_element_by_xpath(f'//*[@id="yDmH0d"]/div[2]/c-wiz/div[2]/c-wiz[1]/div/div/div[3]/div/a[{self.copyright}]/div'))
             try: 

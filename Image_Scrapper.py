@@ -170,9 +170,9 @@ class BingThread(QThread):
         try:
             self.result.setText(f'Chrome Browser를 시작합니다.\n잠시만 기다려주세요.')
             options = webdriver.ChromeOptions()
-            #options.add_argument('headless')
+            options.add_argument('headless')
             options.add_argument("disable-gpu")
-            #options.add_argument('--kiosk')
+            options.add_argument('--kiosk')
             try: browser = webdriver.Chrome(self.driver_path, chrome_options=options)
             except OSError: self.result.setText(f'Chrome Driver 버전을 확인해주세요.')
             except Exception as e:
@@ -193,7 +193,6 @@ class BingThread(QThread):
                 current_row = 1
                 while 1:
                     try:
-                        #parent_element = browser.find_element_by_xpath(f'//*[@id="mmComponent_images_2{current_row}"]')
                         parent_element = browser.find_element_by_xpath(f'//*[@id="mmComponent_images_2"]/ul[{current_row}]')
                         child_element = parent_element.find_elements_by_tag_name('li')
                         child_cnt = len(child_element)

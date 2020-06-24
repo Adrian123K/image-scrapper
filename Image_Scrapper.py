@@ -170,9 +170,9 @@ class BingThread(QThread):
         try:
             self.result.setText(f'Chrome Browser를 시작합니다.\n잠시만 기다려주세요.')
             options = webdriver.ChromeOptions()
-            options.add_argument('headless')
+            #options.add_argument('headless')
             options.add_argument("disable-gpu")
-            options.add_argument('--kiosk')
+            #options.add_argument('--kiosk')
             try: browser = webdriver.Chrome(self.driver_path, chrome_options=options)
             except OSError: self.result.setText(f'Chrome Driver 버전을 확인해주세요.')
             except Exception as e:
@@ -186,23 +186,25 @@ class BingThread(QThread):
             browser.execute_script("arguments[0].click();", browser.find_element_by_xpath('//*[@id="b-scopeListItem-images"]/a'))
             try:
                 browser.execute_script("arguments[0].click();", browser.find_element_by_xpath('//*[@id="fltIdt"]'))
-                browser.execute_script("arguments[0].click();", browser.find_element_by_xpath('//*[@id="ftrB"]/ul/li[7]/span'))
-                if self.copyright: 
+                browser.execute_script("arguments[0].click();", browser.find_element_by_xpath('//*[@id="ftrB"]/ul/li[7]'))
+                if self.copyright:
                     browser.execute_script("arguments[0].click();", browser.find_element_by_xpath(f'//*[@id="ftrB"]/ul/li[7]/div/div/a[{self.copyright+1}]'))
                 current_cnt = 1
                 current_row = 1
                 while 1:
                     try:
-                        parent_element = browser.find_element_by_xpath(f'//*[@id="mmComponent_images_2_list_{current_row}"]')
+                        #parent_element = browser.find_element_by_xpath(f'//*[@id="mmComponent_images_2{current_row}"]')
+                        parent_element = browser.find_element_by_xpath(f'//*[@id="mmComponent_images_2"]/ul[{current_row}]')
                         child_element = parent_element.find_elements_by_tag_name('li')
                         child_cnt = len(child_element)
+                        print(child_cnt)
                     except Exception as e:
                         print(2, type(e), e)
                         break
                     try:
-                        for i in range(1, child_cnt+1):
+                        for i in range(child_cnt):
                             self.result.setText(f'현재 {current_cnt}장의 이미지를 저장 중입니다.')
-                            element = browser.find_element_by_xpath(f'//*[@id="mmComponent_images_2_list_{current_row}"]/li[{i}]/div/div/a/div/img')
+                            element = browser.find_element_by_xpath(f'//*[@id="mmComponent_images_2"]/ul[{current_row}]/li[{i+1}]/div/div/a/div/img')
                             browser.execute_script("arguments[0].scrollIntoView();", element)
                             image = element.get_attribute('src')
                             urllib.request.urlretrieve(image, self.directory_path + '/' + str(current_cnt) + ".jpg")
@@ -237,7 +239,7 @@ class Image_Scrapper(QtWidgets.QDialog, Image_Scrapper_ui.Ui_Dialog):
         # bing copyright hide
         self.bing_copyright.hide()
         # 어플리케이션 이름
-        self.setWindowTitle('Image Scrapper 1.4.3')
+        self.setWindowTitle('Image Scrapper 1.4.5')
         # 어플리케이션 아이콘
         self.setWindowIcon(QtGui.QIcon('./images/app_icon.jpg'))
         # github 이미지

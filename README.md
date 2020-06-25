@@ -45,4 +45,4 @@
   
 <br>
 
-#### 문의사항은 [Issue](https://github.com/IllIIIllll/image_scrapper/issues) 페이지에 남겨주세요.
+#### 문의사항은 [Issue](https://github.com/IllIIIllll/image-scrapper/issues) 페이지에 남겨주세요.

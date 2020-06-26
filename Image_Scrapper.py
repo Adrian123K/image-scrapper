@@ -3,6 +3,9 @@
 
 # In[ ]:
 
+# © 2020 지성. all rights reserved.
+# <llllllllll@kakao.com>
+# GNU Lesser General Public License v3.0
 
 import sys
 from PyQt5 import QtWidgets

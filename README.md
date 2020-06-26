@@ -21,7 +21,6 @@
 - Python3
 - PyQt5
 - Selenium
-- BeautifulSoup
 
 # Release  
 |Version|Date|Comments|
@@ -45,4 +44,4 @@
   
 <br>
 
-#### 문의사항은 [Issue](https://github.com/IllIIIllll/image-scrapper/issues) 페이지에 남겨주세요.
+#### Open Source License는 [이곳](open_source_license.md)에서 확인해주시고, 문의사항은 [Issue](https://github.com/IllIIIllll/image-scrapper/issues) 페이지에 남겨주세요.

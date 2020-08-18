@@ -47,9 +47,10 @@ class GoogleThread(QThread):
             elem.send_keys(self.search.text())
             elem.submit()
             browser.execute_script("arguments[0].click();", browser.find_element_by_xpath('//*[@id="yDmH0d"]/div[2]/c-wiz/div[1]/div/div[1]/div[2]/div[2]/div/div'))
-            browser.execute_script("arguments[0].click();", browser.find_element_by_xpath('//*[@id="yDmH0d"]/div[2]/c-wiz/div[2]/c-wiz[1]/div/div/div[1]/div/div[3]'))
-            if self.copyright: 
-                browser.execute_script("arguments[0].click();", browser.find_element_by_xpath(f'//*[@id="yDmH0d"]/div[2]/c-wiz/div[2]/c-wiz[1]/div/div/div[3]/div/a[{self.copyright}]/div'))
+            browser.execute_script("arguments[0].click();", browser.find_element_by_xpath('//*[@id="yDmH0d"]/div[2]/c-wiz/div[2]/c-wiz[1]/div/div/div[1]/div/div[3]/div'))
+
+            if self.copyright:
+                browser.execute_script("arguments[0].click();", browser.find_element_by_xpath(f'//*[@id="yDmH0d"]/div[2]/c-wiz/div[2]/c-wiz[1]/div/div/div[3]/div/a[{self.copyright}]'))
             try: 
                 browser.find_element_by_css_selector('#islmp > div > div > p.M5HqZb')
                 self.result.setText(f'검색어 \"{self.search.text()}\"와 일치하는 이미지 검색결과가 없습니다.')
@@ -241,10 +242,10 @@ class Image_Scrapper(QtWidgets.QDialog, Image_Scrapper_ui.Ui_Dialog):
         # bing copyright hide
         self.bing_copyright.hide()
         # 어플리케이션 이름
-        self.setWindowTitle('Image Scrapper 1.4.5')
+        self.setWindowTitle('Image Scrapper 1.4.6')
         # 어플리케이션 아이콘
         self.setWindowIcon(QtGui.QIcon('./images/app_icon.jpg'))
-        # github 이미지
+        # github 이미지:
         self.github.setStyleSheet('image:url(./images/github.png);border:0px;')
         # driver 경로 text browser
         self.driver_path.clear()
